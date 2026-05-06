@@ -1,0 +1,220 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NotifyX</title>
+  
+  <!-- Tailwind CSS Load Karein -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons Load Karein -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #000000; margin: 0; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Smooth toast animation */
+    #statusToast { transition: all 0.3s ease; overflow: hidden; max-height: 0; opacity: 0; margin-bottom: 0; }
+    #statusToast.show { max-height: 80px; opacity: 1; margin-bottom: 24px; }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-8 selection:bg-purple-500/30">
+
+  <!-- Mobile Device Mockup Container -->
+  <div class="w-full max-w-[390px] min-h-[844px] bg-[#0A0A0E] rounded-[48px] overflow-hidden relative shadow-2xl border-[6px] border-[#1A1A24] flex flex-col">
+    
+    <!-- Glow Effects (Sleek design ke liye) -->
+    <div class="absolute top-[-10%] left-[-20%] w-[80%] h-[40%] bg-purple-600/20 blur-[100px] pointer-events-none rounded-full"></div>
+    <div class="absolute bottom-[-10%] right-[-20%] w-[80%] h-[40%] bg-blue-600/10 blur-[100px] pointer-events-none rounded-full"></div>
+
+    <!-- Status Bar Mockup -->
+    <div class="h-12 flex justify-between items-center px-7 text-[13px] font-semibold text-white z-50 pt-3 relative">
+      <span>9:41</span>
+      <div class="flex gap-2 items-center">
+        <i data-lucide="wifi" class="w-4 h-4 text-white opacity-80"></i>
+        <i data-lucide="battery-full" class="w-5 h-5 text-white"></i>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="flex-1 flex flex-col relative px-6 pt-6 pb-10 z-10">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+         <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600">Notify</span>X
+         </h1>
+         <div class="w-10 h-10 rounded-full bg-[#1C1C28] flex items-center justify-center text-purple-400 shadow-lg shadow-purple-500/10 border border-purple-500/20">
+           <i data-lucide="bell-ring" class="w-5 h-5"></i>
+         </div>
+      </div>
+
+      <!-- Status Toast (Messages dikhane ke liye) -->
+      <div id="statusToast">
+        <div class="bg-[#1C1C28] border border-purple-500/30 rounded-xl p-3 flex items-center gap-3">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-purple-400 flex-shrink-0"></i>
+          <p id="statusMsg" class="text-xs text-purple-100"></p>
+        </div>
+      </div>
+
+      <!-- Permissions Card -->
+      <div class="bg-[#12121A] border border-[#20202A] rounded-[24px] p-5 mb-6 shadow-xl">
+        <h2 class="text-white text-sm font-semibold mb-4 flex items-center gap-2">System Access</h2>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div id="permIconContainer" class="w-10 h-10 rounded-full flex items-center justify-center bg-yellow-500/10 text-yellow-500">
+              <i id="permIcon" data-lucide="bell" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-white text-sm font-medium">Notifications</p>
+              <p id="permText" class="text-xs text-gray-500 capitalize">Abhi tak allow nahi kiya</p>
+            </div>
+          </div>
+          <button id="allowBtn" onclick="requestPermission()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold py-2 px-4 rounded-full transition-colors active:scale-95">
+            Allow Karein
+          </button>
+        </div>
+      </div>
+
+      <!-- Composer Card (Message set karne ke liye) -->
+      <div class="bg-[#12121A] border border-[#20202A] rounded-[24px] p-5 mb-6 shadow-xl flex-1">
+        <h2 class="text-white text-sm font-semibold mb-5 flex items-center gap-2">Message Likhein</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1.5 ml-1">Notification ka Title</label>
+            <input id="notifTitle" type="text" value="System Alert!" class="w-full bg-[#181822] border border-[#2A2A38] text-white text-sm rounded-2xl py-3.5 px-4 focus:outline-none focus:border-purple-500 transition-colors placeholder-gray-600">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1.5 ml-1">Message Body</label>
+            <textarea id="notifBody" rows="3" class="w-full bg-[#181822] border border-[#2A2A38] text-white text-sm rounded-2xl py-3.5 px-4 focus:outline-none focus:border-purple-500 transition-colors placeholder-gray-600 resize-none">Yeh ek asli background notification hai jo phone par aayega.</textarea>
+          </div>
+        </div>
+        <div id="warningMsg" class="mt-5 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
+          <p class="text-xs text-red-400 font-medium">Bhejne se pehle upar permission allow karna zaroori hai.</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-3 mt-auto">
+         <button id="btnDelay" onclick="fireNotification(5000)" disabled class="opacity-50 bg-[#181822] border border-[#2A2A38] text-gray-300 rounded-[20px] py-4 font-medium flex items-center justify-center gap-2 transition-colors active:scale-95">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            <span class="text-sm">5s mein</span>
+         </button>
+         <button id="btnNow" onclick="fireNotification(0)" disabled class="opacity-50 bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] text-white rounded-[20px] py-4 font-medium flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition-opacity active:scale-95">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span class="text-sm">Abhi Bhejein</span>
+         </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Icons ko initialize karein
+    lucide.createIcons();
+
+    // Android Chrome ke liye Service Worker register karein
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker lag gaya bhai!'))
+        .catch(err => console.log('Service Worker fail: Kya apne sw.js file zip me dali thi?'));
+    }
+
+    let currentPermission = 'default';
+
+    // UI ko update karne ka function
+    function updateUI() {
+      const permText = document.getElementById('permText');
+      const permIconContainer = document.getElementById('permIconContainer');
+      const permIcon = document.getElementById('permIcon');
+      const allowBtn = document.getElementById('allowBtn');
+      const warningMsg = document.getElementById('warningMsg');
+      const btnDelay = document.getElementById('btnDelay');
+      const btnNow = document.getElementById('btnNow');
+
+      permText.innerText = currentPermission === 'granted' ? 'Allowed' : currentPermission;
+
+      if (currentPermission === 'granted') {
+        permIconContainer.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-emerald-500/10 text-emerald-400';
+        permIcon.setAttribute('data-lucide', 'shield-check');
+        allowBtn.style.display = 'none';
+        warningMsg.style.display = 'none';
+        btnDelay.disabled = false; btnDelay.classList.remove('opacity-50');
+        btnNow.disabled = false; btnNow.classList.remove('opacity-50');
+      } else if (currentPermission === 'denied') {
+        permIconContainer.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-red-500/10 text-red-400';
+        permIcon.setAttribute('data-lucide', 'shield-alert');
+        allowBtn.style.display = 'none';
+        permText.innerText = 'Blocked';
+      }
+      lucide.createIcons();
+    }
+
+    // Chota sa toast message dikhane ke liye
+    function showToast(msg) {
+      document.getElementById('statusMsg').innerText = msg;
+      const toast = document.getElementById('statusToast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    // Start hote hi check karo permission mili hai ya nahi
+    if ('Notification' in window) {
+      currentPermission = Notification.permission;
+      updateUI();
+    } else {
+      currentPermission = 'unsupported';
+      document.getElementById('permText').innerText = 'Phone support nahi karta';
+    }
+
+    // Permission maangne wala function
+    async function requestPermission() {
+      if (!('Notification' in window)) { alert("Browser support nahi kar raha."); return; }
+      const result = await Notification.requestPermission();
+      currentPermission = result;
+      updateUI();
+      if (result === 'granted') showToast("Permission mil gayi! Ab aap try kar sakte ho.");
+      else showToast("Aapne permission block kar di browser settings me.");
+    }
+
+    // Asli Notification bhejne ka code (Service worker ke saath)
+    async function fireNotification(delayMs) {
+      if (currentPermission !== 'granted') return;
+      
+      const title = document.getElementById('notifTitle').value;
+      const body = document.getElementById('notifBody').value;
+      
+      showToast(delayMs > 0 ? `Notification ${delayMs / 1000} seconds mein aayega...` : "Bhej rahe hain...");
+
+      setTimeout(async () => {
+        try {
+          // Service worker ke through background push bhej rahe hain (Android ke liye zaroori)
+          const registration = await navigator.serviceWorker.getRegistration();
+          
+          if (registration) {
+             registration.showNotification(title, {
+               body: body,
+               icon: 'https://cdn-icons-png.flaticon.com/512/3114/3114883.png', // Ghanti ka icon
+               badge: 'https://cdn-icons-png.flaticon.com/512/3114/3114883.png',
+               vibrate: [200, 100, 200, 100, 200] // Phone vibrate karne ke liye
+             });
+             showToast("Phone pe Notification bhej diya gaya!");
+          } else {
+             // Agar SW register nahi hua toh purana tareeka try karega
+             new Notification(title, { body: body, icon: 'https://cdn-icons-png.flaticon.com/512/3114/3114883.png' });
+             showToast("Web Notification bhej diya!");
+          }
+        } catch (err) {
+          alert("Galti: " + err.message + "\n\nKya aapne ZIP file mein sw.js naam ki khali file add ki thi?");
+        }
+      }, delayMs);
+    }
+  </script>
+</body>
+</html>
+
+
+```
