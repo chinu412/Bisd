@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NotifyX</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #000000; color: white; font-family: sans-serif; }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+  <div class="w-full max-w-[390px] bg-[#12121A] rounded-[24px] p-6 border border-[#20202A] shadow-xl">
+    <h2 class="text-xl font-bold mb-6 text-purple-400">Send Notification</h2>
+    
+    <div class="space-y-4 mb-6">
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">Title</label>
+        <input id="notifTitle" type="text" value="Testing API!" class="w-full bg-[#181822] border border-[#2A2A38] text-white rounded-xl py-3 px-4 outline-none focus:border-purple-500">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">Message</label>
+        <textarea id="notifBody" rows="3" class="w-full bg-[#181822] border border-[#2A2A38] text-white rounded-xl py-3 px-4 outline-none focus:border-purple-500">Button dabane se notification aayega!</textarea>
+      </div>
+    </div>
+
+    <button onclick="sendOneSignalNotification()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl transition-colors">
+      Send Notification Now
+    </button>
+  </div>
+
+  <script>
+    // ⚠️ YAHAN APNI DETAILS DAALO ⚠️
+    const ONESIGNAL_APP_ID = "68345a6f-a91f-46d9-a9b5-10fa697b575d";
+    const ONESIGNAL_REST_API_KEY = "os_v2_app_na2fu35jd5dntknvcd5gs62xlwetlbqk3cmupk4rngkbcudfwbyz3mty7hyqtji3hnnyeuwazzvr72pcxnkgql6apm6qklmvaogb52q"; 
+
+    function sendOneSignalNotification() {
+      const title = document.getElementById('notifTitle').value;
+      const body = document.getElementById('notifBody').value;
+
+      // OneSignal ke server ko request bhej rahe hain
+      fetch("https://onesignal.com/api/v1/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Authorization": "Basic " + ONESIGNAL_REST_API_KEY
+        },
+        body: JSON.stringify({
+          app_id: ONESIGNAL_APP_ID,
+          included_segments: ["Subscribed Users"], // Yeh sabhi app users ko bhejega
+          headings: { "en": title },
+          contents: { "en": body }
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Success:", data);
+        alert("Notification OneSignal ko bhej diya gaya hai! 2-3 second mein upar se aayega.");
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Kuch galat hua: " + error);
+      });
+    }
+  </script>
+</body>
+</html>
